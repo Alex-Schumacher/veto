@@ -1,6 +1,6 @@
 # veto
 
-A new Flutter project.
+A social media App with an intent to increase participation in political discourse in people. 
 
 ## Getting Started
 
