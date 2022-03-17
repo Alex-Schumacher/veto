@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "989765606288",
+    "project_id": "veto-88279",
+    "storage_bucket": "veto-88279.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:989765606288:android:c4009e994a31aae14eb115",
+        "android_client_info": {
+          "package_name": "ch.veto"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "989765606288-8rgpijd3d7g2brr93ifasamuahegqj9q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmdh8OlYpKICi5LD3VY46HN1CptO3y4HU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "989765606288-8rgpijd3d7g2brr93ifasamuahegqj9q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
