@@ -7,8 +7,8 @@ class ProfilePicture extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 25,
-      height: 25,
+      width: 42,
+      height: 42,
       decoration: new BoxDecoration(
         color: Color.fromARGB(255, 255, 255, 255),
         shape: BoxShape.circle
