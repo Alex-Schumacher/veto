@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:veto/widgets/home/feed/post.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class Feed extends StatefulWidget {
   const Feed({Key? key}) : super(key: key);
@@ -41,11 +42,12 @@ class _FeedState extends State<Feed> {
     documents = documents.reversed.toList();
     return documents
         .map((doc) => Card(
+          
               child: ListTile(
                 title: Text(doc['content']),
-                subtitle: Text(doc['userId']),
+                subtitle: Text( doc['userId']) ),
               ),
-            ))
+            )
         .toList();
   }
 }

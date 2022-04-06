@@ -1,26 +1,26 @@
-
-
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:veto/widgets/home/feed/feed.dart';
-import '../widgets/home/PopupForm.dart';
-import 'package:veto/widgets/home/feed/post.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+
+import 'package:firebase_core/firebase_core.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import '../widgets/vote/BillFeed.dart';
+
+
+class VoteScreen extends StatefulWidget {
+  const VoteScreen({ Key? key }) : super(key: key);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<VoteScreen> createState() => _VoteScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
- 
+class _VoteScreenState extends State<VoteScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+     return Scaffold(
       appBar: AppBar(
-        title: Text("Veto - page principal"),
+
+        title: Text("Veto - Votation"),
         actions: [
           DropdownButton(
             icon: Icon(
@@ -52,24 +52,21 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: Container(
-        child: Feed(),
+        child: BillFeed(),
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.lightBlue,
         child: Icon(Icons.add),
         onPressed: () {
-          Navigator.push(
+          //TODO
+       /*   Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (BuildContext builder) => PopupForm()));
+        */
         },
         splashColor: Colors.lightBlueAccent,
       ),
     );
-
-    /*ListView.builder(
-        itemCount: 10, //à changà avec le nombre de tweet voulu,
-        itemBuilder: ((context, index) => Post(username,content)) ), 
-        */
   }
 }

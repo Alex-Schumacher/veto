@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:veto/screens/vote_screen.dart';
+import 'package:veto/widgets/vote/BillFeed.dart';
 import 'screens/auth_screen.dart';
 import 'screens/home_screen.dart';
 Future<void> main() async {
@@ -19,15 +21,28 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Veto',
       theme: ThemeData.dark(),
-      home:  StreamBuilder(
-          stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (context, userSnapShot) {
-            if (userSnapShot.hasData) {
-              return HomeScreen();
-            }
-            return AuthScreen();
-          },
+      home:  Scaffold(
+        bottomNavigationBar: BottomNavigationBar(
+            items: [
+              BottomNavigationBarItem(icon: Icon(Icons.home),label: "home"),
+              BottomNavigationBarItem(icon: Icon(Icons.how_to_vote),label: "vote"),
+
+            ],
+            
+
+
+
         ),
+        body: StreamBuilder(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, userSnapShot) {
+              if (userSnapShot.hasData) {
+                return HomeScreen();
+              }
+              return AuthScreen();
+            },
+          ),
+      ),
       
     );
   }

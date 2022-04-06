@@ -18,6 +18,7 @@ class _PopupFormState extends State<PopupForm> {
   final _formKey = GlobalKey<FormState>();
 
   var _content = '';
+  
   CollectionReference posts = FirebaseFirestore.instance.collection('posts');
   void _trySubmit() {
     final isValid = _formKey.currentState!.validate();
