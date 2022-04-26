@@ -9,6 +9,7 @@ import '../widgets/vote/BillFeed.dart';
 
 class VoteScreen extends StatefulWidget {
   const VoteScreen({ Key? key }) : super(key: key);
+  static  const RouteName = 'vote';
 
   @override
   State<VoteScreen> createState() => _VoteScreenState();
@@ -56,7 +57,7 @@ class _VoteScreenState extends State<VoteScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.lightBlue,
-        child: Icon(Icons.add),
+        child: Icon(Icons.loupe),
         onPressed: () {
           //TODO
        /*   Navigator.push(

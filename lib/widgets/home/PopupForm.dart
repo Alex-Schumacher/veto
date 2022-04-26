@@ -1,35 +1,39 @@
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:math';
+import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 class PopupForm extends StatefulWidget {
+ final  VoidCallback onSubmited;
+  PopupForm({required this.onSubmited, Key? key}) : super(key: key);
+
   @override
   State<PopupForm> createState() => _PopupFormState();
 }
 
 class _PopupFormState extends State<PopupForm> {
-/*  const PopupForm({ //a voir si modifier avec : final _formKey = GlobalKey<FormState>();
-    Key? key,
-  }) : super(key: key);
-  */
   final _formKey = GlobalKey<FormState>();
 
   var _content = '';
-  
+
   CollectionReference posts = FirebaseFirestore.instance.collection('posts');
   void _trySubmit() {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
       _formKey.currentState!.save();
-
+  
       posts
           .add({
             'dateTime': Timestamp.now(),
-            'userId': Random().nextInt(100).toString(),
+            'userId': FirebaseAuth.instance.currentUser!.uid,
             'content': _content,
+            'likes' : FieldValue.arrayUnion(List.empty()),
+
           })
           .then((value) => print('post Added'))
           .catchError((err) {
@@ -71,6 +75,7 @@ class _PopupFormState extends State<PopupForm> {
                     onPressed: () {
                       if (_content.isNotEmpty && _content.length < 255) {
                         _trySubmit();
+                        widget.onSubmited();
                         Navigator.of(context).pop();
                       } else {
                         showDialog(
@@ -92,9 +97,10 @@ class _PopupFormState extends State<PopupForm> {
                                   style: TextStyle(fontSize: 20),
                                 ),
                                 actions: [
-                                  new TextButton(
+                                  TextButton(
                                       onPressed: () {
                                         Navigator.of(context).pop();
+                                        setState(() {});
                                       },
                                       child: Text(
                                         "ok",

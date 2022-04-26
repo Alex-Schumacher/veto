@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,13 +7,19 @@ import 'package:veto/widgets/home/feed/post.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
+  static const RouteName = 'home';
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
- 
+  void UpdateMain() {
+    setState(() {});
+  }
+
+  GlobalKey<_HomeScreenState> _key = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,7 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (BuildContext builder) => PopupForm()));
+                builder: (BuildContext builder) => PopupForm(onSubmited: () => UpdateMain(),),
+              ));
         },
         splashColor: Colors.lightBlueAccent,
       ),
