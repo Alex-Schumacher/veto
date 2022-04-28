@@ -16,7 +16,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       child: Column(
         children: [
-          FutureBuilder<DocumentSnapshot>(
+          FutureBuilder<DocumentSnapshot<Map>>(
               future: FirebaseFirestore.instance
                   .collection('users')
                   .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -26,9 +26,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   return Center(
                     child: CircularProgressIndicator(),
                   );
-                final userData = docs.data?.data() ?? []  ;
-                print(userData);
-               return ProfileSettings(email: userData['email'],userId: ,)
+                var userData = docs.data?.data() ?? [];
+                userData =userData as Map;
+              
+              
+                return ProfileSettings(email: userData['email'], username: userData['username'], userId: FirebaseAuth.instance.currentUser!.uid);
               })
         ],
       ),

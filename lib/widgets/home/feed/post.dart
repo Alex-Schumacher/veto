@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../profile/profile_picture.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -42,7 +43,8 @@ class _PostState extends State<Post> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ProfilePicture(),
+                
+                ProfilePicture( userId: FirebaseAuth.instance.currentUser!.uid),
                 SizedBox(
                   width: 10,
                 ),
@@ -72,7 +74,7 @@ class _PostState extends State<Post> {
         ),
       ),
     );
-
+/*
     Container(
       decoration: BoxDecoration(
         border: Border.all(color: Theme.of(context).dividerColor, width: 0.5),
@@ -116,5 +118,7 @@ class _PostState extends State<Post> {
         ),
       ),
     );
+  */
   }
+  
 }
