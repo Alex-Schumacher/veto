@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:veto/screens/post_screen.dart';
+import 'package:veto/widgets/home/feed/comment_Icon.dart';
+import 'package:veto/widgets/home/feed/like_Icon.dart';
 import '../../profile/profile_picture.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -11,9 +14,11 @@ class Post extends StatefulWidget {
   final String postId;
   final List likes;
   final Timestamp createdAt;
+   bool isUsable;
 
-  Post(
-      {required this.content,
+  Post( 
+      {this.isUsable = true,
+        required this.content,
       required this.username,
       required this.likes,
       required this.postId,
@@ -35,7 +40,20 @@ class _PostState extends State<Post> {
         border: Border.all(color: Theme.of(context).dividerColor, width: 0.5),
       ),
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          if(widget.isUsable){
+          Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                  builder: (BuildContext context) => PostScreen(
+                      content: widget.content,
+                      createdAt: widget.createdAt,
+                      likes: widget.likes,
+                      postId: widget.postId,
+                      userId: widget.userId,
+                      username: widget.username)));
+        }
+        },
         child: Container(
           margin: EdgeInsets.symmetric(vertical: 10.0),
           child: Padding(
@@ -43,8 +61,7 @@ class _PostState extends State<Post> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                
-                ProfilePicture( userId: FirebaseAuth.instance.currentUser!.uid),
+                ProfilePicture(userId: FirebaseAuth.instance.currentUser!.uid),
                 SizedBox(
                   width: 10,
                 ),
@@ -53,18 +70,49 @@ class _PostState extends State<Post> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                       
                         children: [
-                          Text(widget.username),
+                          Expanded(child: Text(widget.username)),
                           SizedBox(
                             width: 10,
                           ),
-                          Text(timeago.format(widget.createdAt.toDate(),locale: 'fr'),overflow: TextOverflow.ellipsis,),
+                          Text(
+                            timeago.format(widget.createdAt.toDate(),
+                                locale: 'fr'),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ],
                       ),
                       Text(
                         widget.content,
                       ),
-                      Row(mainAxisAlignment: MainAxisAlignment.spaceAround,children: [Icon(Icons.chat),Icon(Icons.favorite,),],)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if(widget.isUsable)...[
+                            SizedBox(width: 20,),
+                          LikeIcon(postId: widget.postId),
+                          SizedBox(width: 40,),
+                          CommentIcon(
+                            ParentPostId: widget.postId,
+                            content: widget.content,
+                            createdAt: widget.createdAt,
+                            likes: widget.likes,
+                            userId: widget.userId,
+                            username: widget.username,
+                          ),
+                          SizedBox(width: 80,)
+                          ]
+                          else...[
+                           
+                            Icon(Icons.favorite,color: widget.likes.contains(FirebaseAuth.instance.currentUser!.uid) ? Colors.red:Colors.grey,),
+                             Icon(Icons.chat),
+                          ]  
+
+                          
+                          
+                        ],
+                      )
                     ],
                   ),
                 )
@@ -120,5 +168,4 @@ class _PostState extends State<Post> {
     );
   */
   }
-  
 }

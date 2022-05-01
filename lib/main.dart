@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:veto/screens/connected_screen.dart';
 import 'package:veto/screens/profile_screen.dart';
 import 'package:veto/screens/vote_screen.dart';
 import 'package:veto/widgets/vote/BillFeed.dart';
@@ -29,52 +30,20 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Veto',
-      theme: ThemeData.dark(),
-      routes: {
-        HomeScreen.RouteName: (context) => HomeScreen(),
-        VoteScreen.RouteName: (context) => VoteScreen(),
-        AuthScreen.RouteName: (context) => AuthScreen()
-      },
-      home: Scaffold(
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _index,
-          items: [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: "home"),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.how_to_vote), label: "vote"),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.account_circle_outlined), label: "profil"),
-          ],
-          onTap: (index) {
-            switch (index) {
-              case 0:
-                currentPage = HomeScreen();
-                break;
-              case 1:
-                currentPage = VoteScreen();
-                break;
-              //TODO PROFILE
-              case 2:
-                currentPage = ProfileScreen();
-                break;
-              default:
-                currentPage = HomeScreen();
-                break;
-            }
-            _index = index;
-
-            setState(() {});
-          },
-        ),
-        body: StreamBuilder(
-          stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (context, userSnapShot) {
-            if (userSnapShot.hasData) {
-              return currentPage;
-            }
-            return AuthScreen();
-          },
-        ),
+        theme: ThemeData.dark(),
+        routes: {
+          HomeScreen.RouteName: (context) => HomeScreen(),
+          VoteScreen.RouteName: (context) => VoteScreen(),
+          AuthScreen.RouteName: (context) => AuthScreen()
+        },
+      home: StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, userSnapShot) {
+          if (userSnapShot.hasData) {
+            return ConnectedScreen();
+          }
+          return AuthScreen();
+        },
       ),
     );
   }

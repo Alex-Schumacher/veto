@@ -1,51 +1,52 @@
-import 'dart:async';
-import 'dart:ffi';
-import 'dart:math';
-import 'package:firebase_auth/firebase_auth.dart';
-
-import '../../screens/home_screen.dart';
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:veto/widgets/home/feed/post.dart';
 
-class PopupForm extends StatefulWidget {
- final  VoidCallback onSubmited;
-  PopupForm({required this.onSubmited, Key? key}) : super(key: key);
+class CommentScreen extends StatefulWidget {
+  final VoidCallback onSubmitted;
+  final String parentPostId;  
+  final String content;
+  final String username;
+  final List likes;
+  final String userId;
+  final Timestamp createdAt; 
+  const CommentScreen(
+      {required this.content,required this.createdAt,required this.likes,required this.userId,required this.username,required this.parentPostId, required this.onSubmitted, Key? key})
+      : super(key: key);
 
   @override
-  State<PopupForm> createState() => _PopupFormState();
+  State<CommentScreen> createState() => _CommentScreenState();
 }
 
-class _PopupFormState extends State<PopupForm> {
+class _CommentScreenState extends State<CommentScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  var _content = '';
+  var _comment = '';
+  @override
+  CollectionReference postsReference =
+      FirebaseFirestore.instance.collection('posts');
 
-  CollectionReference posts = FirebaseFirestore.instance.collection('posts');
   void _trySubmit() {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
       _formKey.currentState!.save();
-  
-      posts
+
+      postsReference
           .add({
             'dateTime': Timestamp.now(),
             'userId': FirebaseAuth.instance.currentUser!.uid,
-            'content': _content,
-            'likes' : FieldValue.arrayUnion(List.empty()),
-            'parentPostId': 'rootPost'
-
+            'content': _comment,
+            'likes': FieldValue.arrayUnion(List.empty()),
+            'parentPostId': widget.parentPostId
           })
-          .then((value) => print('post Added'))
+          .then((value) => print('comment added'))
           .catchError((err) {
             print('erreur');
           });
-
-      ///Utiliser les variables pour la requête d'authentification
     }
   }
 
-  @override
   Widget build(BuildContext context) {
     var _isLoading = false;
 
@@ -69,14 +70,14 @@ class _PopupFormState extends State<PopupForm> {
                   child: ElevatedButton(
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
-                            _content.isEmpty || _content.length >= 255
+                            _comment.isEmpty || _comment.length >= 255
                                 ? Theme.of(context).disabledColor
                                 : Colors.lightBlue)),
                     child: Text("Submit"),
                     onPressed: () {
-                      if (_content.isNotEmpty && _content.length < 255) {
+                      if (_comment.isNotEmpty && _comment.length < 255) {
                         _trySubmit();
-                        widget.onSubmited();
+                        widget.onSubmitted();
                         Navigator.of(context).pop();
                       } else {
                         showDialog(
@@ -84,10 +85,10 @@ class _PopupFormState extends State<PopupForm> {
                             context: context,
                             builder: (BuildContext builder) {
                               var _errorText = "";
-                              if (_content.isEmpty)
+                              if (_comment.isEmpty)
                                 _errorText =
                                     "Vous devez avoir au moins un charactère pour pouvoir envoyer un post";
-                              if (_content.length >= 255)
+                              if (_comment.length >= 255)
                                 _errorText =
                                     "Vous ne pouvez pas avoir plus de 255 charactères sur votre post";
                               return AlertDialog(
@@ -120,6 +121,13 @@ class _PopupFormState extends State<PopupForm> {
               ],
             ),
 
+          
+        Post(isUsable: false,content: widget.content, username: widget.username, likes: widget.likes, postId: widget.parentPostId, userId: widget.userId, createdAt: widget.createdAt),
+                    
+
+                  
+          
+
             Form(
                 key: _formKey,
                 child: Expanded(
@@ -131,7 +139,7 @@ class _PopupFormState extends State<PopupForm> {
                       key: ValueKey('content'),
                       keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
-                          labelText: "Votre message", alignLabelWithHint: true),
+                          labelText: "Votre commentaire", alignLabelWithHint: true),
                       validator: (value) {
                         if (value!.isEmpty && value.length >= 255) {
                           //TODO: RAJOUTER UNE LISTE DE MOTS INTERDITS
@@ -141,13 +149,13 @@ class _PopupFormState extends State<PopupForm> {
                       },
                       onChanged: (value) {
                         setState(() {
-                          _content = value;
+                          _comment = value;
                         });
                       },
                       onSaved: (value) {
                         if (value!.isNotEmpty && value.length >= 255) {
-                          _content = value;
-                          print(_content);
+                          _comment = value;
+                          print(_comment);
                         }
                       },
                     ),

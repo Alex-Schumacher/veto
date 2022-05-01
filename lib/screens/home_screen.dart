@@ -24,35 +24,21 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Veto - page principal"),
+        title: Text(
+          'feed',
+          style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.lightBlue),
+        ),
         actions: [
-          DropdownButton(
-            icon: Icon(
-              Icons.more_vert,
-              color: Theme.of(context).primaryIconTheme.color,
-            ),
-            items: [
-              DropdownMenuItem(
-                value: 'Logout',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.exit_to_app,
-                      color: Colors.black,
-                    ),
-                    SizedBox(width: 8),
-                    Text('Logout'),
-                  ],
-                ),
-              )
-            ],
-            onChanged: (itemIdentifier) {
-              if (itemIdentifier == 'Logout') {
-                FirebaseAuth.instance.signOut();
-                setState(() {});
-              }
+          InkWell(
+            child: Icon(Icons.logout),
+            onTap: () {
+              FirebaseAuth.instance.signOut();
+              setState(() {});
             },
-          ),
+          )
         ],
       ),
       body: Container(
@@ -65,7 +51,9 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (BuildContext builder) => PopupForm(onSubmited: () => UpdateMain(),),
+                builder: (BuildContext builder) => PopupForm(
+                  onSubmited: () => UpdateMain(),
+                ),
               ));
         },
         splashColor: Colors.lightBlueAccent,

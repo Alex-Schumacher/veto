@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:veto/widgets/home/feed/post.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
+
 import 'package:veto/widgets/vote/BillFeed.dart';
 
 class Feed extends StatefulWidget {
@@ -36,8 +36,7 @@ class _FeedState extends State<Feed> {
           });
         },
         child: StreamBuilder<QuerySnapshot>(
-            stream:
-                FirebaseFirestore.instance.collection('users').snapshots(),
+            stream: FirebaseFirestore.instance.collection('users').snapshots(),
             builder: (context, usernameSnapshot) {
               return StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
@@ -45,32 +44,35 @@ class _FeedState extends State<Feed> {
                       .orderBy('dateTime', descending: true)
                       .snapshots(),
                   builder: (builder, postsSnapshot) {
-                    if (postsSnapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    final usernames = usernameSnapshot.data?.docs ?? [];
-                    final posts = postsSnapshot.data?.docs ?? [];
+                  
+                   
+                    
+                    if (postsSnapshot.connectionState == ConnectionState.active) {
+                      final usernames = usernameSnapshot.data?.docs ?? [];
+                      final posts = postsSnapshot.data?.docs.where((element) => element['parentPostId'] == 'rootPost').toList() ?? [];
 
-                    return ListView.builder(
-                      itemCount: posts.length,
-                        itemBuilder: ((context, index) => Post(
-                content: posts[index]['content'],
-                username: usernames.firstWhere((element) => element.id == posts[index]['userId']).get('username'), 
-                likes: posts[index]['likes'], 
-                postId: posts[index].id,
-                userId: posts[index]['userId'],
-                createdAt: posts[index]['dateTime'],
-                )));
-                
-                    //final List<DocumentSnapshot> documents =
-                    //   snapshot.data!.docs.toList();
+                      return ListView.builder(
+                          itemCount: posts.length,
+                          itemBuilder: ((context, index) => Post(
+                                content: posts[index]['content'],
+                                username: usernames
+                                    .firstWhere((element) =>
+                                        element.id == posts[index]['userId'])
+                                    .get('username'),
+                                likes: posts[index]['likes'],
+                                postId: posts[index].id,
+                                userId: posts[index]['userId'],
+                                createdAt: posts[index]['dateTime'],
+                              )));
+
+                      //final List<DocumentSnapshot> documents =
+                    }
+                       return Center(
+                        child: CircularProgressIndicator(),
+                      ); //   snapshot.data!.docs.toList();
                   });
             }),
       ),
     );
   }
-
 }

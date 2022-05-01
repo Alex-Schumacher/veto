@@ -8,12 +8,15 @@ class ProfilePicture extends StatelessWidget {
   Future<String> getUserProfilePicture() async {
     final imageRef =
         FirebaseStorage.instance.ref().child('ProfilePictures/' + userId);
-    
+
     var url;
     try {
       url = await imageRef.getDownloadURL();
     } catch (err) {
       print("erreur");
+      url = "N/A";
+    }
+    if (url == null) {
       url = "N/A";
     }
 
@@ -22,33 +25,35 @@ class ProfilePicture extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 42,
-      height: 42,
-      decoration: new BoxDecoration(
-          color: Color.fromARGB(255, 255, 255, 255), shape: BoxShape.circle),
-      child: FutureBuilder<String>(
-          future: getUserProfilePicture(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasData) {
-                if (snapshot.data != "N/A") {
-                  return CircleAvatar(
-                      foregroundImage: NetworkImage(snapshot.data!));
-                }
+    return FutureBuilder<String>(
+        future: getUserProfilePicture(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasData) {
+              if (snapshot.data != "N/A") {
+             
+                
+                return Container(
+                    width: 42,
+                    height: 42,
+                    decoration: new BoxDecoration(
+                        color: Color.fromARGB(255, 255, 255, 255),
+                        shape: BoxShape.circle),
+                    child: CircleAvatar(
+                        backgroundImage: NetworkImage(snapshot.data!)));
               }
-              return CircleAvatar(
-                foregroundImage:
-                    Image.asset('assets/images/DefaultProfilePicture.png')
-                        .image,
-                backgroundColor: Colors.grey,
-              );
             }
+          }
 
-            return CircleAvatar(
-              backgroundColor: Theme.of(context).hintColor,
-            );
-          }),
-    );
+          return Container(
+              width: 42,
+              height: 42,
+              decoration: new BoxDecoration(
+                  color: Color.fromARGB(255, 255, 255, 255),
+                  shape: BoxShape.circle),
+              child: CircleAvatar(
+                backgroundColor: Colors.grey,
+              ));
+        });
   }
 }

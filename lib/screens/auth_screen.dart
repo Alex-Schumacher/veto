@@ -67,6 +67,13 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Theme.of(context).primaryColor,
-        body: AuthForm(_submitAuthForm, _isLoading));
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('veto',style: TextStyle(fontSize: 60,fontWeight: FontWeight.bold,color: Colors.lightBlue),),
+          SizedBox(height: 15,),
+            AuthForm(_submitAuthForm, _isLoading),
+          ],
+        ));
   }
 }
