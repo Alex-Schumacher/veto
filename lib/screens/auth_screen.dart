@@ -6,7 +6,7 @@ import '../widgets/auth/auth_form.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({Key? key}) : super(key: key);
-  static  const RouteName = 'auth';
+  static const RouteName = 'auth';
 
   @override
   State<AuthScreen> createState() => _AuthScreenState();
@@ -22,11 +22,10 @@ class _AuthScreenState extends State<AuthScreen> {
     String password,
     bool isLogin,
     BuildContext buildContext,
-    )async
-    {
-      UserCredential userCredential;
+  ) async {
+    UserCredential userCredential;
 
-    try{
+    try {
       if (isLogin) {
         userCredential = await _auth.signInWithEmailAndPassword(
             email: email, password: password);
@@ -38,21 +37,21 @@ class _AuthScreenState extends State<AuthScreen> {
             .collection('users')
             .doc(userCredential.user?.uid)
             .set({'username': username, 'email': email});
-    }
-    }
-     on PlatformException catch(err) {
-       var message = "il y'a eu une erreur dans la connexion,veuillez controller vos informations";
-       if(err.message !=null ){
-         message = err.message!;
-       }
-       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message),
-       backgroundColor: Theme.of(context).errorColor,
-       ));
-       setState(() {
-         _isLoading = false;
-       });
-     }
-     catch (error) {
+      }
+    } on PlatformException catch (err) {
+      var message =
+          "il y'a eu une erreur dans la connexion,veuillez controller vos informations";
+      if (err.message != null) {
+        message = err.message!;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(message),
+        backgroundColor: Theme.of(context).errorColor,
+      ));
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text((error as FirebaseAuthException).message.toString()),
         backgroundColor: Theme.of(context).errorColor,
@@ -67,13 +66,23 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Theme.of(context).primaryColor,
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('veto',style: TextStyle(fontSize: 60,fontWeight: FontWeight.bold,color: Colors.lightBlue),),
-          SizedBox(height: 15,),
-            AuthForm(_submitAuthForm, _isLoading),
-          ],
+        body: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'veto',
+                style: TextStyle(
+                    fontSize: 60,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.lightBlue),
+              ),
+              SizedBox(
+                height: 15,
+              ),
+              AuthForm(_submitAuthForm, _isLoading),
+            ],
+          ),
         ));
   }
 }

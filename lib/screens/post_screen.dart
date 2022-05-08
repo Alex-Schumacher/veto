@@ -15,8 +15,10 @@ class PostScreen extends StatefulWidget {
   final String postId;
   final List likes;
   final Timestamp createdAt;
+  final bool isBill;
   const PostScreen(
-      {required this.content,
+      {required this.isBill,
+      required this.content,
       required this.createdAt,
       required this.likes,
       required this.postId,
@@ -29,9 +31,21 @@ class PostScreen extends StatefulWidget {
   State<PostScreen> createState() => _PostScreenState();
 }
 
+var databaseName = 'posts';
+var likeName = 'likes';
+var parentName = 'parentPostId';
+var contentName = 'content';
+var dateName = 'dateTime';
+
 class _PostScreenState extends State<PostScreen> {
   @override
   Widget build(BuildContext context) {
+    if (widget.isBill) {
+      databaseName = 'bills';
+      likeName = 'upvotes';
+      parentName = 'parentBillId';
+      contentName = 'billContent';
+    }
     return Material(
       child: Container(
         child: RefreshIndicator(
@@ -52,8 +66,7 @@ class _PostScreenState extends State<PostScreen> {
                       children: [
                         Row(
                           children: [
-                            ProfilePicture(
-                                userId: FirebaseAuth.instance.currentUser!.uid),
+                            ProfilePicture(userId: widget.userId),
                             SizedBox(
                               width: 10,
                             ),
@@ -83,7 +96,8 @@ class _PostScreenState extends State<PostScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            LikeIcon(postId: widget.postId),
+                            LikeIcon(
+                                postId: widget.postId, isBill: widget.isBill),
                             CommentIcon(
                               ParentPostId: widget.postId,
                               content: widget.content,
@@ -91,79 +105,83 @@ class _PostScreenState extends State<PostScreen> {
                               likes: widget.likes,
                               userId: widget.userId,
                               username: widget.username,
+                              isBill: widget.isBill,
                             ),
                           ],
                         ),
                       ],
                     )),
               ),
-              StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('users')
-                      .snapshots(),
-                  builder: (context, usernameSnapshot) {
-                    return StreamBuilder<QuerySnapshot>(
-                        stream: FirebaseFirestore.instance
-                            .collection('posts')
-                            .where('parentPostId',
-                                isNull: false, isEqualTo: widget.postId)
-                            .snapshots(),
-                        builder: (context, postsQuery) {
-                          if (postsQuery.connectionState ==
-                              ConnectionState.waiting) {
-                            return CircularProgressIndicator();
-                          }
-                          final usernames = usernameSnapshot.data?.docs ?? [];
-                          final posts = postsQuery.data?.docs ?? [];
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .snapshots(),
+                    builder: (context, usernameSnapshot) {
+                      return StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection(databaseName)
+                              .where(parentName,
+                                  isNull: false, isEqualTo: widget.postId)
+                              .snapshots(),
+                          builder: (context, postsQuery) {
+                            if (postsQuery.connectionState ==
+                                ConnectionState.waiting) {
+                              return CircularProgressIndicator();
+                            }
+                            final usernames = usernameSnapshot.data?.docs ?? [];
+                            final posts = postsQuery.data?.docs ?? [];
 
-                          return ListView.builder(
-                            shrinkWrap: true,
+                            return ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: posts.length,
+                                itemBuilder: ((context, index) => Post(
+                                      content: posts[index][contentName],
+                                      username: usernames
+                                          .firstWhere((element) =>
+                                              element.id ==
+                                              posts[index]['userId'])
+                                          .get('username'),
+                                      likes: posts[index][likeName],
+                                      postId: posts[index].id,
+                                      userId: posts[index]['userId'],
+                                      createdAt: posts[index][dateName],
+                                      isBill: widget.isBill,
+                                    )));
+
+                            /* return StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('posts')
+                              .orderBy('dateTime', descending: true)
+                              .snapshots(),
+                          builder: (builder, postsSnapshot) {
+                            if (postsSnapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                            final usernames = usernameSnapshot.data?.docs ?? [];
+                            final posts = postsSnapshot.data?.docs ?? [];
+                  
+                            return ListView.builder(
                               itemCount: posts.length,
-                              itemBuilder: ((context, index) => Post(
-                                    content: posts[index]['content'],
-                                    username: usernames
-                                        .firstWhere((element) =>
-                                            element.id ==
-                                            posts[index]['userId'])
-                                        .get('username'),
-                                    likes: posts[index]['likes'],
-                                    postId: posts[index].id,
-                                    userId: posts[index]['userId'],
-                                    createdAt: posts[index]['dateTime'],
-                                  )));
-
-                          /* return StreamBuilder<QuerySnapshot>(
-                        stream: FirebaseFirestore.instance
-                            .collection('posts')
-                            .orderBy('dateTime', descending: true)
-                            .snapshots(),
-                        builder: (builder, postsSnapshot) {
-                          if (postsSnapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-                          final usernames = usernameSnapshot.data?.docs ?? [];
-                          final posts = postsSnapshot.data?.docs ?? [];
-    
-                          return ListView.builder(
-                            itemCount: posts.length,
-                              itemBuilder: ((context, index) => Post(
-                      content: posts[index]['content'],
-                      username: usernames.firstWhere((element) => element.id == posts[index]['userId']).get('username'), 
-                      likes: posts[index]['likes'], 
-                      postId: posts[index].id,
-                      userId: posts[index]['userId'],
-                      createdAt: posts[index]['dateTime'],
-                      )));
-                      
-                          //final List<DocumentSnapshot> documents =
-                          //   snapshot.data!.docs.toList();
-                        });
-                        */
-                        });
-                  })
+                                itemBuilder: ((context, index) => Post(
+                        content: posts[index]['content'],
+                        username: usernames.firstWhere((element) => element.id == posts[index]['userId']).get('username'), 
+                        likes: posts[index]['likes'], 
+                        postId: posts[index].id,
+                        userId: posts[index]['userId'],
+                        createdAt: posts[index]['dateTime'],
+                        )));
+                        
+                            //final List<DocumentSnapshot> documents =
+                            //   snapshot.data!.docs.toList();
+                          });
+                          */
+                          });
+                    }),
+              )
             ],
           ),
         ),

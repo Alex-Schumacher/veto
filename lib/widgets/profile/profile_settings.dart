@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:veto/widgets/profile/profile_picture.dart';
 
@@ -28,18 +29,28 @@ Future uploadImageToFirebase(BuildContext context) async {
   var _profilePictureRef = _storageRef
       .child('ProfilePictures/' + FirebaseAuth.instance.currentUser!.uid);
 
-  if (_profilePictureRef.getData() != null) {
-    _profilePictureRef.delete();
-  }
-
   final picker = ImagePicker();
   final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-  final _imageFile = File(pickedFile!.path);
+  if (pickedFile == null) {
+    return;
+  }
+  var databaseData = true;
+  try {
+    await _profilePictureRef.getData();
+  } catch (err) {
+    databaseData = false;
+  }
+
+  if (databaseData) {
+    _profilePictureRef.delete();
+  }
+
+  final _imageFile = File(pickedFile.path);
   try {
     _profilePictureRef.putFile(_imageFile);
   } catch (err) {
-    print("erreur");
+    print("profile_erreur");
   }
 }
 
@@ -52,24 +63,32 @@ class _ProfileSettingsState extends State<ProfileSettings> {
           Container(
             height: 200,
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Center(
                   child: InkWell(
-                    child: ProfilePicture(
-                      userId: FirebaseAuth.instance.currentUser!.uid,
+                    child: Center(
+                      child: ProfilePicture(
+                        size: 100,
+                        userId: FirebaseAuth.instance.currentUser!.uid,
+                      ),
                     ),
                     onTap: () {
                       uploadImageToFirebase(context);
+                      setState(() {});
                     },
                   ),
                 ),
                 Text('changer de photo de profil')
               ],
             ),
-            color: Colors.black,
+            color: Theme.of(context).cardColor,
           ),
+          SizedBox(height: 40),
           Text(widget.username),
-          Text('changer de nom d\'utilisateur'),
+          SizedBox(
+            height: 10,
+          ),
 
           // FirebaseFirestore.instance.collection('users').doc(widget.userId).update({'username': newUsername });
 

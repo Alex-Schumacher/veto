@@ -8,17 +8,25 @@ class CommentIcon extends StatefulWidget {
   final String username;
   final List likes;
   final String userId;
-  final Timestamp createdAt; 
-  const CommentIcon({required this.content,required this.createdAt,required this.likes,required this.userId,required this.username,required this.ParentPostId  ,Key? key}) : super(key: key);
+  final Timestamp createdAt;
+  final bool isBill;
+  const CommentIcon(
+      {this.isBill = false,
+      required this.content,
+      required this.createdAt,
+      required this.likes,
+      required this.userId,
+      required this.username,
+      required this.ParentPostId,
+      Key? key})
+      : super(key: key);
 
   @override
   State<CommentIcon> createState() => _CommentIconState();
 }
 
 class _CommentIconState extends State<CommentIcon> {
-  void UpdateMain() {
-    setState(() {});
-  }
+  void UpdateMain() {}
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +45,7 @@ class _CommentIconState extends State<CommentIcon> {
                 likes: widget.likes,
                 userId: widget.userId,
                 username: widget.username,
+                isbill: widget.isBill,
               ),
             ));
       },

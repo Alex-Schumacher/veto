@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 
 class LikeIcon extends StatefulWidget {
   final String postId;
-  LikeIcon({required this.postId, Key? key}) : super(key: key);
+  final bool isBill;
+
+  LikeIcon({this.isBill = false, required this.postId, Key? key})
+      : super(key: key);
 
   @override
   State<LikeIcon> createState() => LikeIconState();
@@ -16,14 +19,15 @@ class LikeIconState extends State<LikeIcon> {
   late bool _isLiked;
   var userId = FirebaseAuth.instance.currentUser!.uid;
 
+  String databaseName = "posts";
+  String likeName = "likes";
+
   void isUpvoted() {
     _isLiked = likes.contains(userId);
   }
 
   void Init() {
-  
-      isUpvoted();
-
+    isUpvoted();
   }
 
   void ChangeLike() async {
@@ -32,12 +36,10 @@ class LikeIconState extends State<LikeIcon> {
     switch (_isLiked) {
       case false:
         try {
-          
-         await FirebaseFirestore.instance
-              .collection('posts')
+          await FirebaseFirestore.instance
+              .collection(databaseName)
               .doc(widget.postId)
-              .update(<String, dynamic>{'likes': FieldValue.arrayUnion(list)});
-              
+              .update(<String, dynamic>{likeName: FieldValue.arrayUnion(list)});
         } catch (err) {
           print(err);
           return;
@@ -47,13 +49,11 @@ class LikeIconState extends State<LikeIcon> {
         break;
       case true:
         try {
-          
-         await  FirebaseFirestore.instance
-              .collection('posts')
+          await FirebaseFirestore.instance
+              .collection(databaseName)
               .doc(widget.postId)
-              .update(<String, dynamic>{'likes': FieldValue.arrayRemove(list)});
-               
-
+              .update(
+                  <String, dynamic>{likeName: FieldValue.arrayRemove(list)});
 
           /*FirebaseFirestore.instance
               .collection('bills')
@@ -61,13 +61,12 @@ class LikeIconState extends State<LikeIcon> {
               .update
               */
         } catch (err) {
-          print('erreur');
+          print('icon_erreur');
           return;
         }
         _cacheIsUpvoted = false;
     }
 
-    
     setState(() {
       switch (_cacheIsUpvoted) {
         case true:
@@ -79,21 +78,22 @@ class LikeIconState extends State<LikeIcon> {
 
       _isLiked = _cacheIsUpvoted;
     });
-    
   }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isBill) {
+      databaseName = "bills";
+      likeName = "upvotes";
+    }
     return FutureBuilder<DocumentSnapshot>(
         future: FirebaseFirestore.instance
-            .collection('posts')
+            .collection(databaseName)
             .doc(widget.postId)
             .get(),
         builder: (context, likeQuery) {
-         
-          
           if (likeQuery.connectionState == ConnectionState.done) {
-            likes = likeQuery.data?['likes'];
+            likes = likeQuery.data?[likeName];
             Init();
             return Row(
               children: [
@@ -111,15 +111,14 @@ class LikeIconState extends State<LikeIcon> {
               ],
             );
           }
-            return Row(
-              children: [
-                Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Icon(Icons.favorite, color: Colors.grey)),
-                Text('0')
-              ],
-            );
-          
+          return Row(
+            children: [
+              Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Icon(Icons.favorite, color: Colors.grey)),
+              Text('0')
+            ],
+          );
         });
   }
 }

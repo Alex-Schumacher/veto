@@ -14,11 +14,13 @@ class Post extends StatefulWidget {
   final String postId;
   final List likes;
   final Timestamp createdAt;
-   bool isUsable;
+  bool isUsable;
+  bool isBill;
 
-  Post( 
-      {this.isUsable = true,
-        required this.content,
+  Post(
+      {this.isBill = false,
+      this.isUsable = true,
+      required this.content,
       required this.username,
       required this.likes,
       required this.postId,
@@ -41,18 +43,21 @@ class _PostState extends State<Post> {
       ),
       child: InkWell(
         onTap: () {
-          if(widget.isUsable){
-          Navigator.push(
-              context,
-              MaterialPageRoute<void>(
-                  builder: (BuildContext context) => PostScreen(
-                      content: widget.content,
-                      createdAt: widget.createdAt,
-                      likes: widget.likes,
-                      postId: widget.postId,
-                      userId: widget.userId,
-                      username: widget.username)));
-        }
+          if (widget.isUsable) {
+            Navigator.push(context,
+                MaterialPageRoute<void>(builder: (BuildContext context) {
+              return PostScreen(
+                //TODO
+                content: widget.content,
+                createdAt: widget.createdAt,
+                likes: widget.likes,
+                postId: widget.postId,
+                userId: widget.userId,
+                username: widget.username,
+                isBill: widget.isBill,
+              );
+            }));
+          }
         },
         child: Container(
           margin: EdgeInsets.symmetric(vertical: 10.0),
@@ -61,7 +66,7 @@ class _PostState extends State<Post> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ProfilePicture(userId: FirebaseAuth.instance.currentUser!.uid),
+                ProfilePicture(userId: widget.userId),
                 SizedBox(
                   width: 10,
                 ),
@@ -70,7 +75,6 @@ class _PostState extends State<Post> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                       
                         children: [
                           Expanded(child: Text(widget.username)),
                           SizedBox(
@@ -89,28 +93,38 @@ class _PostState extends State<Post> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if(widget.isUsable)...[
-                            SizedBox(width: 20,),
-                          LikeIcon(postId: widget.postId),
-                          SizedBox(width: 40,),
-                          CommentIcon(
-                            ParentPostId: widget.postId,
-                            content: widget.content,
-                            createdAt: widget.createdAt,
-                            likes: widget.likes,
-                            userId: widget.userId,
-                            username: widget.username,
-                          ),
-                          SizedBox(width: 80,)
+                          if (widget.isUsable) ...[
+                            SizedBox(
+                              width: 20,
+                            ),
+                            LikeIcon(
+                                postId: widget.postId, isBill: widget.isBill),
+                            SizedBox(
+                              width: 40,
+                            ),
+                            CommentIcon(
+                              //TODO
+                              isBill: true,
+                              ParentPostId: widget.postId,
+                              content: widget.content,
+                              createdAt: widget.createdAt,
+                              likes: widget.likes,
+                              userId: widget.userId,
+                              username: widget.username,
+                            ),
+                            SizedBox(
+                              width: 80,
+                            )
+                          ] else ...[
+                            Icon(
+                              Icons.favorite,
+                              color: widget.likes.contains(
+                                      FirebaseAuth.instance.currentUser!.uid)
+                                  ? Colors.red
+                                  : Colors.grey,
+                            ),
+                            Icon(Icons.chat),
                           ]
-                          else...[
-                           
-                            Icon(Icons.favorite,color: widget.likes.contains(FirebaseAuth.instance.currentUser!.uid) ? Colors.red:Colors.grey,),
-                             Icon(Icons.chat),
-                          ]  
-
-                          
-                          
                         ],
                       )
                     ],

@@ -1,46 +1,42 @@
-import 'dart:async';
-import 'dart:ffi';
-import 'dart:math';
-import 'package:firebase_auth/firebase_auth.dart';
-
-import '../../screens/home_screen.dart';
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
-class PopupForm extends StatefulWidget {
+class BillPopupForm extends StatefulWidget {
   final VoidCallback onSubmited;
-  PopupForm({required this.onSubmited, Key? key}) : super(key: key);
+  const BillPopupForm({required this.onSubmited, Key? key}) : super(key: key);
 
   @override
-  State<PopupForm> createState() => _PopupFormState();
+  State<BillPopupForm> createState() => _BillPopupFormState();
 }
 
-class _PopupFormState extends State<PopupForm> {
+class _BillPopupFormState extends State<BillPopupForm> {
   final _formKey = GlobalKey<FormState>();
 
   var _content = '';
+  var _name = '';
+  var _code = '';
 
-  CollectionReference posts = FirebaseFirestore.instance.collection('posts');
+  CollectionReference bills = FirebaseFirestore.instance.collection('bills');
   void _trySubmit() {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
       _formKey.currentState!.save();
 
-      posts
+      bills
           .add({
             'dateTime': Timestamp.now(),
             'userId': FirebaseAuth.instance.currentUser!.uid,
-            'content': _content,
-            'likes': FieldValue.arrayUnion(List.empty()),
-            'parentPostId': 'rootPost'
+            'billName': _name,
+            'billContent': _content,
+            'billPseudoCode': _code,
+            'upvotes': FieldValue.arrayUnion(List.empty()),
+            'parentBillId': 'rootBill',
           })
           .then((value) => print('post Added'))
           .catchError((err) {
             print('erreur');
           });
-
-      ///Utiliser les variables pour la requête d'authentification
     }
   }
 
@@ -68,12 +64,16 @@ class _PopupFormState extends State<PopupForm> {
                   child: ElevatedButton(
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
-                            _content.isEmpty || _content.length >= 255
+                            _content.isEmpty ||
+                                    _content.length >= 255 ||
+                                    _name.isEmpty ||
+                                    _name.length >= 80
                                 ? Theme.of(context).disabledColor
                                 : Colors.lightBlue)),
                     child: Text("Submit"),
                     onPressed: () {
-                      if (_content.isNotEmpty && _content.length < 255) {
+                      if ((_content.isNotEmpty && _content.length < 255) &&
+                          (_name.isNotEmpty && _name.length < 80)) {
                         _trySubmit();
                         widget.onSubmited();
                         Navigator.of(context).pop();
@@ -83,19 +83,30 @@ class _PopupFormState extends State<PopupForm> {
                             context: context,
                             builder: (BuildContext builder) {
                               var _errorText = "";
+
+                              if (_name.isEmpty) {
+                                _errorText += "*Vous devez avoir un titre.\n";
+                              } else if (_name.length >= 80) {
+                                _errorText +=
+                                    "*Vous ne pouvez pas avoir plus de 80 charactères dans votre titre.\n";
+                              }
+
                               if (_content.isEmpty)
-                                _errorText =
-                                    "Vous devez avoir au moins un charactère pour pouvoir envoyer un post";
-                              if (_content.length >= 255)
-                                _errorText =
-                                    "Vous ne pouvez pas avoir plus de 255 charactères sur votre post";
+                                _errorText +=
+                                    "*Vous devez décrire votre idée pour pouvoir la proposer .";
+                              else if (_content.length >= 255)
+                                _errorText +=
+                                    "*Vous ne pouvez pas avoir plus de 255 charactères sur votre post.";
+
                               return AlertDialog(
                                 shape: RoundedRectangleBorder(
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(32))),
                                 content: Text(
                                   _errorText,
-                                  style: TextStyle(fontSize: 20),
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      color: Theme.of(context).errorColor),
                                 ),
                                 actions: [
                                   TextButton(
@@ -107,9 +118,7 @@ class _PopupFormState extends State<PopupForm> {
                                         "ok",
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 20,
-                                            color:
-                                                Theme.of(context).errorColor),
+                                            fontSize: 20),
                                       ))
                                 ],
                               );
@@ -120,21 +129,49 @@ class _PopupFormState extends State<PopupForm> {
                 ),
               ],
             ),
+            Form(
+                child: Material(
+              child: TextFormField(
+                key: ValueKey('billName'),
+                minLines: 1,
+                maxLines: 2,
+                decoration: InputDecoration(
+                    labelText: 'Décrivez en quelque mots votre idée'),
+                validator: (value) {
+                  if (value!.isEmpty || value.length > 80) {
+                    return "Veuillez définir le titre en dessous de 80 charactères";
+                  }
+                  return null;
+                },
+                onChanged: (value) {
+                  setState(() {
+                    _name = value;
+                  });
+                },
+                onSaved: (value) {
+                  if (value!.isNotEmpty && value.length >= 80) {
+                    _content = value;
+                  }
+                },
+              ),
+            )),
 
             Form(
                 key: _formKey,
                 child: Expanded(
                   child: Material(
                     child: TextFormField(
+                      key: ValueKey('billContent'),
                       minLines: null,
                       maxLines: null,
                       expands: true,
-                      key: ValueKey('content'),
+                      autocorrect: true,
                       keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
-                          labelText: "Votre message", alignLabelWithHint: true),
+                          labelText: "Présentez votre idée",
+                          alignLabelWithHint: true),
                       validator: (value) {
-                        if (value!.isEmpty && value.length >= 255) {
+                        if (value!.isEmpty || value.length >= 255) {
                           //TODO: RAJOUTER UNE LISTE DE MOTS INTERDITS
                           return 'Veuillez écrire un message pour pouvoir l\'envoyer';
                         }
@@ -148,12 +185,36 @@ class _PopupFormState extends State<PopupForm> {
                       onSaved: (value) {
                         if (value!.isNotEmpty && value.length >= 255) {
                           _content = value;
-                          print(_content);
                         }
                       },
                     ),
                   ),
                 )),
+            Form(
+                child: Expanded(
+                    child: Material(
+              child: TextFormField(
+                key: ValueKey('code'),
+                minLines: null,
+                maxLines: null,
+                expands: true,
+                decoration: InputDecoration(
+                    labelText:
+                        "Si vous avez envie,écrivez votre pseudo-code ici",
+                    alignLabelWithHint: true),
+                onChanged: (value) {
+                  setState(() {
+                    _code = value;
+                  });
+                },
+                onSaved: (value) {
+                  if (value!.isEmpty) {
+                    value = "";
+                  }
+                  _content = value;
+                },
+              ),
+            )))
             //TODO: ajouter un cercle montrant combien il reste de mots
           ],
         ),

@@ -46,10 +46,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: CircularProgressIndicator(),
                     );
                   var userData = docs.data?.data() ?? [];
-                  userData =userData as Map;
-                
-                
-                  return ProfileSettings(email: userData['email'], username: userData['username'], userId: FirebaseAuth.instance.currentUser!.uid);
+                  userData = userData as Map;
+
+                  return ProfileSettings(
+                      email: userData['email'],
+                      username: userData['username'],
+                      userId: FirebaseAuth.instance.currentUser!.uid);
                 })
           ],
         ),

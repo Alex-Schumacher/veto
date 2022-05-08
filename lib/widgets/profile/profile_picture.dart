@@ -2,8 +2,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePicture extends StatelessWidget {
+  final double size;
   final String userId;
-  const ProfilePicture({required this.userId, Key? key}) : super(key: key);
+  const ProfilePicture({this.size = 42, required this.userId, Key? key})
+      : super(key: key);
 
   Future<String> getUserProfilePicture() async {
     final imageRef =
@@ -13,7 +15,7 @@ class ProfilePicture extends StatelessWidget {
     try {
       url = await imageRef.getDownloadURL();
     } catch (err) {
-      print("erreur");
+      print("profile_picture_erreur");
       url = "N/A";
     }
     if (url == null) {
@@ -31,11 +33,9 @@ class ProfilePicture extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasData) {
               if (snapshot.data != "N/A") {
-             
-                
                 return Container(
-                    width: 42,
-                    height: 42,
+                    width: this.size,
+                    height: this.size,
                     decoration: new BoxDecoration(
                         color: Color.fromARGB(255, 255, 255, 255),
                         shape: BoxShape.circle),
