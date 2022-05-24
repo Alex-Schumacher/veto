@@ -1,16 +1,13 @@
 # veto
 
-A new Flutter project.
+Veto est un réseau social mobile démocratique. 
+Le but est de cette application est d'améliorer l'application à travers des votes proposés par les utilisateurs eux-mêmes.
 
-## Getting Started
+Ce projet est dans le cadre du TIP de maturité. 
 
-This project is a starting point for a Flutter application.
+site-web: https://veto-app.github.io/
 
-A few resources to get you started if this is your first Flutter project:
+fait par: Alexandre Schumacher - Gabriel D'Ostuni
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+Pour plus d'informations, contactez : Alexandre.Schumacher@ceff.ch
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
